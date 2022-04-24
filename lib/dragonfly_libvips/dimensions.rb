@@ -2,14 +2,12 @@
 
 module DragonflyLibvips
   Dimensions = Struct.new(:orig_w, :orig_h, :geom_w, :geom_h, :x_offset, :y_offset, :area, :modifiers, :gravity, keyword_init: true) do
-    def self.call(*args, **kwargs)
-      new(*args, **kwargs).call
+    def self.call(...)
+      new(...).call
     end
 
     def call
       case
-        when ignore_aspect_ratio?
-          OpenStruct.new(x_scale: horizontal_scale, y_scale: vertical_scale)
         when do_not_resize?
           OpenStruct.new(width: orig_w, height: orig_h, scale: 1)
         when fill_area?
@@ -26,6 +24,8 @@ module DragonflyLibvips
                          height: dimensions.height,
                          x: x_offset,
                          y: y_offset)
+        when ignore_aspect_ratio?
+          OpenStruct.new(width: geom_w, height: geom_h, resize: resize)
         else
           OpenStruct.new(width: width, height: height, scale: scale, resize: resize)
       end
@@ -86,6 +86,7 @@ module DragonflyLibvips
     end
 
     def resize
+      return :force if modifiers&.include? '!'
       return :down if modifiers&.include? '>'
       return :up if modifiers&.include? '>'
       return :both

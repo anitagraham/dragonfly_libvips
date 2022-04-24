@@ -29,17 +29,19 @@ module DragonflyLibvips
       before { app.configure { url_format '/:name' } }
 
       describe 'encode' do
-        let(:thumb) { content.encode('png') }
+        # test changing the format
+        let(:thumb) { content.encode('jpg') }
 
         it { _(thumb.url).must_match(/^\/sample\.png\?.*job=\w+/) }
-        it { _(thumb.format).must_equal 'png' }
-        it { _(thumb.meta['format']).must_equal 'png' }
+        it { _(thumb.format).must_equal 'jpg' }
+        it { _(thumb.meta['format']).must_equal 'jpg' }
       end
 
       describe 'rotate' do
         let(:thumb) { content.rotate(90, format: 'png') }
 
         it { _(thumb.url).must_match(/^\/sample\.png\?.*job=\w+/) }
+
         it { _(thumb.format).must_equal 'png' }
         it { _(thumb.meta['format']).must_equal 'png' }
       end

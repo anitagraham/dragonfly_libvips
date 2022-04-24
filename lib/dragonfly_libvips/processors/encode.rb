@@ -24,10 +24,6 @@ module DragonflyLibvips
           img
         end
       end
-
-      def update_url(url_attributes, *format)
-        url_attributes.ext = format.first.to_s
-      end
     end
   end
 end

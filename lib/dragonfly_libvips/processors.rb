@@ -4,6 +4,7 @@ module DragonflyLibvips
   module Processors
 
     def wrap_process(content, *args, **options, &block)
+
       raise DragonflyLibvips::UnsupportedFormat unless content.ext
       raise DragonflyLibvips::UnsupportedFormat unless SUPPORTED_FORMATS.include?(content.ext.downcase)
 
@@ -16,17 +17,20 @@ module DragonflyLibvips
       img = yield img, **input_options
 
       output_options = get_output_options(format, input_options.fetch('profile', EPROFILE_PATH), **options)
+
       content.update(
         img.write_to_buffer(".#{format}", **DragonflyLibvips.symbolize_keys(**output_options)),
-        'name' => "temp.#{format}",
-        'format' => format
+        'name' => "temp.#{format}"
       )
       content.ext = format
+      content.meta['format'] = format
     end
 
     def update_url(url_attributes, *_, **options)
       options = DragonflyLibvips.stringify_keys(**options)
-      return unless format = options.fetch('format', nil)
+      format = options.fetch('format', nil)
+      return if format.nil?
+
       url_attributes.ext = format
     end
 
@@ -45,7 +49,6 @@ module DragonflyLibvips
         output_options.delete('profile') if output_options[:profile].nil?
 
         output_options.delete('Q') unless format.to_s =~ /jpg|jpeg/i
-        output_options['format'] ||= format.to_s if format.to_s =~ /gif|bmp/i
         output_options['compression'] ||= get_compression_option(format.to_s) if format.to_s =~ /heif|avif/
         output_options
       end

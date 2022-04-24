@@ -8,7 +8,6 @@ describe DragonflyLibvips::Processors::Encode do
   describe 'SUPPORTED_FORMATS' do
     DragonflyLibvips::SUPPORTED_FORMATS.each do |format|
       unless File.exist?(SAMPLES_DIR.join("sample.#{format}"))
-        it(format) { skip "sample.#{format} does not exist, skipping" }
         next
       end
 

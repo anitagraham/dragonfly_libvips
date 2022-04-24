@@ -153,8 +153,9 @@ describe DragonflyLibvips::Dimensions do
       let(:orig_w) { 1000 }
       let(:orig_h) { 1000 }
 
-      it { _(result.x_scale).must_equal 5.0 }
-      it { _(result.y_scale).must_equal 10.0 }
+      it { _(result.width).must_equal 200 }
+      it { _(result.height).must_equal 100 }
+      it { _(result.resize).must_equal :force }
     end
   end
 
