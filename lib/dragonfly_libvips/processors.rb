@@ -3,15 +3,15 @@ require 'vips'
 module DragonflyLibvips
   module Processors
 
-    def wrap_process(content, *args, **options, &block)
+    def wrap_process(content, **options, &block)
 
       raise DragonflyLibvips::UnsupportedFormat unless content.ext
       raise DragonflyLibvips::UnsupportedFormat unless SUPPORTED_FORMATS.include?(content.ext.downcase)
 
       options = DragonflyLibvips.stringify_keys(**options)
       format = options.fetch('format', content.ext)
-      input_options = get_input_options(content.mime_type, **options)
 
+      input_options = get_input_options(content.mime_type, **options)
       img = ::Vips::Image.new_from_file(content.path, **DragonflyLibvips.symbolize_keys(**input_options))
 
       img = yield img, **input_options
@@ -27,8 +27,8 @@ module DragonflyLibvips
 
     def update_url(url_attributes, *_, **options)
       options = DragonflyLibvips.stringify_keys(**options)
-      return unless format = options.fetch('format', nil)
-      url_attributes.ext = format
+      format = options.fetch('format', nil)
+      url_attributes.ext = format unless format.nil?
     end
 
     private
@@ -46,7 +46,6 @@ module DragonflyLibvips
         output_options.delete('profile') if output_options[:profile].nil?
 
         output_options.delete('Q') unless format.to_s =~ /jpg|jpeg/i
-        output_options['format'] ||= format.to_s if format.to_s =~ /gif|bmp/i
         output_options['compression'] ||= get_compression_option(format.to_s) if format.to_s =~ /heif|avif/
         output_options
       end

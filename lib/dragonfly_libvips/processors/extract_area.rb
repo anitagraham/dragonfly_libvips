@@ -6,9 +6,10 @@ module DragonflyLibvips
     class ExtractArea
       include DragonflyLibvips::Processors
 
-      def call(content, *args, **options)
-        wrap_process(content, *args, **options) do |img |
-          x, y, width, height = args
+      def call( *args, **options)
+        content, x, y, width, height, others = args
+        options = {**options, **others} if others.is_a? Hash
+        wrap_process(content,  **options) do |img |
           img = img.extract_area(x, y, width, height)
         end
       end

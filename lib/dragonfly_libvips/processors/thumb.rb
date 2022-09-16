@@ -8,18 +8,13 @@ module DragonflyLibvips
   module Processors
     class Thumb
       include DragonflyLibvips::Processors
-      DPI = 300
       CROP_KEYS = [:x, :y]
-      SHRINK_KEYS = [:x_scale, :y_scale]
 
       def call(content, geometry, options = {})
 
         wrap_process(content, **options) do |img, **input_options|
 
           dimensions = Dimensions.call(orig_w: img.width, orig_h: img.height, **Geometry.call(geometry))
-          # process = :shrink unless (dimensions.to_h.keys & SHRINK_KEYS).empty?
-          process = :crop unless (dimensions.to_h.keys & CROP_KEYS).empty?
-          process ||= :thumbnail_image
 
           thumbnail_options = set_thumbnail_options(
             input_options, dimensions,
@@ -27,27 +22,17 @@ module DragonflyLibvips
             jpeg:  content.mime_type == 'image/jpeg'
           )
 
-          case process
-            when :shrink
-              thumbnail_options.except!(:height, :size)
-              # thumbnail_options[:xshrink] = dimensions.x_scale
-              # thumbnail_options[:yshrink] = dimensions.y_scale
-              Rails.logger.debug(". . . . #{__FILE__}/#{__method__}/#{__LINE__}")
-              Rails.logger.ap thumbnail_options
-              Rails.logger.ap dimensions
-              img.shrink(dimensions.x_scale, dimensions.y_scale, **thumbnail_options)
-            when :crop
-              if dimensions.resize_width
-                img = img.thumbnail_image(dimensions.resize_width.ceil, size: :both, height: dimensions.resize_height.ceil)
-              end
-
-              img.crop(dimensions.x, dimensions.y, dimensions.width, dimensions.height)
-            else
-              if geometry.include?('^')
-                thumbnail_options.delete(:crop)
-                thumbnail_options[:size] = :both
-              end
-              img.thumbnail_image(dimensions.width.ceil, **thumbnail_options)
+          if (dimensions.to_h.keys & CROP_KEYS).any?
+            if dimensions.resize_width
+              img = img.thumbnail_image(dimensions.resize_width.ceil, size: :both, height: dimensions.resize_height.ceil)
+            end
+            img.crop(dimensions.x, dimensions.y, dimensions.width, dimensions.height)
+          else
+            if geometry.include?('^')
+              thumbnail_options.delete(:crop)
+              thumbnail_options[:size] = :both
+            end
+            img.thumbnail_image(dimensions.width.ceil, **thumbnail_options)
           end
         end
       end

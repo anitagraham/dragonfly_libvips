@@ -13,7 +13,7 @@ describe DragonflyLibvips do
   describe 'wrap_process' do
     it 'raises an error if an unsupported format is requested' do
       assert_raises( DragonflyLibvips::UnsupportedFormat ) do
-        processor.call(content, {format: 'abc'})
+        processor.call(content, format: 'abc')
       end
     end
 

@@ -8,8 +8,8 @@ module DragonflyLibvips
     class Encode
       include DragonflyLibvips::Processors
 
-      def call(content, *args, **options)
-        format = args.first
+      def call( *args, **options)
+        content, format = args
 
         raise UnsupportedOutputFormat unless SUPPORTED_OUTPUT_FORMATS.include?(format.downcase)
 
@@ -23,10 +23,6 @@ module DragonflyLibvips
         wrap_process(content, **options) do |img |
           img
         end
-      end
-
-      def update_url(url_attributes, *format)
-        url_attributes.ext = format.first.to_s
       end
     end
   end
